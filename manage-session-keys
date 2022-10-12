@@ -33,13 +33,13 @@ uninstall_keys() {
 setup_keys() {
   if [ -f /usr/lib/systemd/system/nginx.service ]; then
     # setup Centmin Mod nginx TLS session keys
-    wget -O -q /usr/local/bin/manage-session-keys https://github.com/centminmod/centminmod-nginx-session-ticket-keys/raw/master/manage-session-keys
+    wget -q -O /usr/local/bin/manage-session-keys https://github.com/centminmod/centminmod-nginx-session-ticket-keys/raw/master/manage-session-keys
     chmod +x /usr/local/bin/manage-session-keys
-    wget -O -q /usr/lib/systemd/system/nginx-session_ticket_keys.automount https://github.com/centminmod/centminmod-nginx-session-ticket-keys/raw/master/nginx-session_ticket_keys.automount
-    wget -O -q /usr/lib/systemd/system/nginx-rotate-session-ticket-keys.timer https://github.com/centminmod/centminmod-nginx-session-ticket-keys/raw/master/nginx-rotate-session-ticket-keys.timer
-    wget -O -q /usr/lib/systemd/system/nginx-create-session-ticket-keys.service https://github.com/centminmod/centminmod-nginx-session-ticket-keys/raw/master/nginx-create-session-ticket-keys.service
-    wget -O -q /usr/lib/systemd/system/nginx-rotate-session-ticket-keys.service https://github.com/centminmod/centminmod-nginx-session-ticket-keys/raw/master/nginx-rotate-session-ticket-keys.service
-    wget -O -q /usr/lib/systemd/system/nginx-session_ticket_keys.mount https://github.com/centminmod/centminmod-nginx-session-ticket-keys/raw/master/nginx-session_ticket_keys.mount
+    wget -q -O /usr/lib/systemd/system/nginx-session_ticket_keys.automount https://github.com/centminmod/centminmod-nginx-session-ticket-keys/raw/master/nginx-session_ticket_keys.automount
+    wget -q -O /usr/lib/systemd/system/nginx-rotate-session-ticket-keys.timer https://github.com/centminmod/centminmod-nginx-session-ticket-keys/raw/master/nginx-rotate-session-ticket-keys.timer
+    wget -q -O /usr/lib/systemd/system/nginx-create-session-ticket-keys.service https://github.com/centminmod/centminmod-nginx-session-ticket-keys/raw/master/nginx-create-session-ticket-keys.service
+    wget -q -O /usr/lib/systemd/system/nginx-rotate-session-ticket-keys.service https://github.com/centminmod/centminmod-nginx-session-ticket-keys/raw/master/nginx-rotate-session-ticket-keys.service
+    wget -q -O /usr/lib/systemd/system/nginx-session_ticket_keys.mount https://github.com/centminmod/centminmod-nginx-session-ticket-keys/raw/master/nginx-session_ticket_keys.mount
     systemctl daemon-reload >/dev/null 2>&1
     systemctl start nginx-session_ticket_keys.mount >/dev/null 2>&1
     systemctl start nginx-create-session-ticket-keys.service >/dev/null 2>&1
