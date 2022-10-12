@@ -117,7 +117,11 @@ status_keys(){
 
 check_resumption(){
   domain=$1
-  echo | openssl s_client -connect $domain:443 -reconnect -no_ticket -servername $domain 2>&1 | egrep 'New|Reused|Protocol|Cipher|Session-ID:|Master-Key'
+  domain_session_info=$(echo | openssl s_client -connect $domain:443 -reconnect -no_ticket -servername $domain 2>&1)
+  echo "------------------------------------------"
+  echo "$domain_session_info" | egrep 'New|Reused|Protocol|Cipher|Session-ID:|Master-Key' | head -n5 | sed -e 's|, |-|g' -e 's| is |: |' -e 's|\/|-|' | awk -F ":" '{print $1  $2}' | xargs -n2
+  echo "------------------------------------------"
+  echo "$domain_session_info" | egrep 'New|Reused|Protocol|Cipher|Session-ID:|Master-Key' | tail -5 | sed -e 's|, |-|g' -e 's| is |: |' -e 's|\/|-|' | awk -F ":" '{print $1  $2}' | xargs -n2
 }
 
 help() {
