@@ -114,6 +114,11 @@ status_keys(){
     /usr/bin/systemctl status usr-local-nginx-conf-session_ticket_keys.mount
 }
 
+check_resumption(){
+  domain=$1
+  echo | openssl s_client -connect $domain:443 -reconnect -no_ticket -servername $domain
+}
+
 help() {
   echo
   echo "Usage:"
@@ -123,6 +128,7 @@ help() {
   echo "$0 rotate"
   echo "$0 uninstall"
   echo "$0 status"
+  echo "$0 check-domain yourdomain.com"
 }
 
 case "$1" in
@@ -140,6 +146,13 @@ case "$1" in
     ;;
   status )
     status_keys
+    ;;
+  check-domain )
+    if [ -n "$2" ]; then
+      check_resumption "$2"
+    else
+      echo "$0 check-domain yourdomain.com"
+    fi
     ;;
   * )
     help
