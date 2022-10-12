@@ -6,7 +6,6 @@
 # https://blog.cloudflare.com/tls-session-resumption-full-speed-and-secure/
 ###############################################################################
 export PATH="/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin"
-set -o errexit
 
 uninstall_keys() {
   if [ -f /usr/lib/systemd/system/nginx.service ]; then
