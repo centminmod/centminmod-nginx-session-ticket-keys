@@ -1,0 +1,24 @@
+[Unit]
+Description=Create Centmin Mod nginx TLS session ticket keys
+Before=nginx.service
+After=nginx-session_ticket_keys.mount
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+ExecStart=/usr/local/bin/manage-session-keys create
+
+PrivateDevices=true
+PrivateIPC=true
+PrivateNetwork=true
+PrivateTmp=true
+PrivateUsers=true
+
+# filesystem restrictions
+ProtectSystem=strict
+ReadWritePaths=/usr/local/nginx/conf/session_ticket_keys
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

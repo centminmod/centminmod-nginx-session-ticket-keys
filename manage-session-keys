@@ -1,0 +1,123 @@
+#!/bin/bash
+###############################################################################
+# setup nginx TLS session ticket keys and rotation for perfect forward secrecy
+# on Centmin Mod Nginx based servers (centminmod.com)
+# https://en.wikipedia.org/wiki/Forward_secrecy
+###############################################################################
+set -o errexit -o nounset
+
+uninstall_keys() {
+  if [ -f /usr/lib/systemd/system/nginx.service ]; then
+    systemctl disable nginx-create-session-ticket-keys.service >/dev/null 2>&1
+    systemctl disable nginx-rotate-session-ticket-keys.service >/dev/null 2>&1
+    systemctl disable nginx-rotate-session-ticket-keys.timer >/dev/null 2>&1
+    systemctl disable nginx-session_ticket_keys.mount >/dev/null 2>&1
+    systemctl stop nginx-create-session-ticket-keys.service >/dev/null 2>&1
+    systemctl stop nginx-rotate-session-ticket-keys.service >/dev/null 2>&1
+    systemctl daemon-reload >/dev/null 2>&1
+    rm -f /usr/local/bin/manage-session-keys
+    rm -f /usr/lib/systemd/system/nginx-session_ticket_keys.automount
+    rm -f /usr/lib/systemd/system/nginx-rotate-session-ticket-keys.timer
+    rm -f /usr/lib/systemd/system/nginx-create-session-ticket-keys.service
+    rm -f /usr/lib/systemd/system/nginx-rotate-session-ticket-keys.service
+    rm -f /usr/lib/systemd/system/nginx-session_ticket_keys.mount
+    sed -i '/ssl_session_ticket_key/d' /usr/local/nginx/conf/ssl_include.conf
+    if [ -f /usr/local/nginx/conf/ssl-session-ticket-keys.conf ]; then
+      rm -f /usr/local/nginx/conf/ssl-session-ticket-keys.conf
+    fi
+    systemctl reload nginx >/dev/null 2>&1
+    echo "nginx session ticket keys uninstalled"
+  fi
+}
+
+setup_keys() {
+  if [ -f /usr/lib/systemd/system/nginx.service ]; then
+    # setup Centmin Mod nginx TLS session keys
+    wget -O /usr/local/bin/manage-session-keys https://github.com/centminmod/centminmod-nginx-session-ticket-keys/raw/master/manage-session-keys
+    chmod +x /usr/local/bin/manage-session-keys
+    wget -O /usr/lib/systemd/system/nginx-session_ticket_keys.automount https://github.com/centminmod/centminmod-nginx-session-ticket-keys/raw/master/nginx-session_ticket_keys.automount
+    wget -O /usr/lib/systemd/system/nginx-rotate-session-ticket-keys.timer https://github.com/centminmod/centminmod-nginx-session-ticket-keys/raw/master/nginx-rotate-session-ticket-keys.timer
+    wget -O /usr/lib/systemd/system/nginx-create-session-ticket-keys.service https://github.com/centminmod/centminmod-nginx-session-ticket-keys/raw/master/nginx-create-session-ticket-keys.service
+    wget -O /usr/lib/systemd/system/nginx-rotate-session-ticket-keys.service https://github.com/centminmod/centminmod-nginx-session-ticket-keys/raw/master/nginx-rotate-session-ticket-keys.service
+    wget -O /usr/lib/systemd/system/nginx-session_ticket_keys.mount https://github.com/centminmod/centminmod-nginx-session-ticket-keys/raw/master/nginx-session_ticket_keys.mount
+    systemctl daemon-reload >/dev/null 2>&1
+    systemctl start nginx-session_ticket_keys.mount >/dev/null 2>&1
+    systemctl start nginx-create-session-ticket-keys.service >/dev/null 2>&1
+    systemctl start nginx-rotate-session-ticket-keys.service >/dev/null 2>&1
+    systemctl enable nginx-create-session-ticket-keys.service >/dev/null 2>&1
+    systemctl enable nginx-rotate-session-ticket-keys.service >/dev/null 2>&1
+    systemctl enable nginx-rotate-session-ticket-keys.timer >/dev/null 2>&1
+    systemctl enable nginx-session_ticket_keys.mount >/dev/null 2>&1
+    echo "nginx session ticket keys setup"
+  else
+    echo "/usr/lib/systemd/system/nginx.service not detected"
+    exit 1
+  fi
+}
+
+create_keys() {
+  umask 077
+
+  cd /usr/local/nginx/conf/session_ticket_keys
+  if [ -f /usr/local/nginx/conf/ssl-session-ticket-keys.conf ]; then
+    rm -f /usr/local/nginx/conf/ssl-session-ticket-keys.conf
+    touch /usr/local/nginx/conf/ssl-session-ticket-keys.conf
+  else
+    touch /usr/local/nginx/conf/ssl-session-ticket-keys.conf
+  fi
+
+  for i in 1 2 3 4 5 6 7 8; do
+    openssl rand -out ${i}.key 80
+    echo "ssl_session_ticket_key /usr/local/nginx/conf/session_ticket_keys/${i}.key;" >> /usr/local/nginx/conf/ssl-session-ticket-keys.conf
+  done
+  echo "nginx session ticket keys created at:"
+  echo "/usr/local/nginx/conf/session_ticket_keys"
+  echo
+  echo "include file at:"
+  echo "/usr/local/nginx/conf/ssl-session-ticket-keys.conf"
+}
+
+rotate_keys() {
+  umask 077
+
+  cd /usr/local/nginx/conf/session_ticket_keys
+
+  for i in 1 2 3 4 5 6 7 8; do
+    cp -p "$((i + 1)).key" tmp.key
+    mv -f tmp.key "$i.key"
+  done
+
+  rm -f 9.key
+
+  if [ "$#" -gt 0 ]; then
+    [ "$1" = '-r' ] && /usr/local/sbin/nginx -s reload
+  fi
+}
+
+help() {
+  echo
+  echo "Usage:"
+  echo
+  echo "$0 setup"
+  echo "$0 create"
+  echo "$0 rotate"
+  echo "$0 uninstall"
+}
+
+case "$1" in
+  create )
+    create_keys
+    ;;
+  rotate )
+    rotate_keys
+    ;;
+  setup )
+    setup_keys
+    ;;
+  uninstall )
+    uninstall_keys
+    ;;
+  * )
+    help
+    ;;
+esac
