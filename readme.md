@@ -10,10 +10,22 @@ chmod +x /usr/local/bin/manage-session-keys
 /usr/local/bin/manage-session-keys setup
 
 systemctl status nginx-create-session-ticket-keys.service
-systemctl status nginx-rotate-session-ticket-keys.service
-systemctl status nginx-rotate-session-ticket-keys.timer
-systemctl status nginx-session_ticket_keys.mount
+systemctl status usr-local-nginx-conf-session_ticket_keys.mount
 ```
+
+The session ticket keys are saved to a ramdisk mounted directory at `/usr/local/nginx/conf/session_ticket_keys`
+
+```
+df -hT /usr/local/nginx/conf/session_ticket_keys
+Filesystem     Type   Size  Used Avail Use% Mounted on
+tmpfs          tmpfs   16G   32K   16G   1% /usr/local/nginx/conf/session_ticket_keys
+```
+
+# Manual Usage:
+
+
+`/usr/local/bin/manage-session-keys` usage:
+
 ```
 Usage:
 
