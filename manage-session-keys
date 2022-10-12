@@ -12,9 +12,9 @@ uninstall_keys() {
     /usr/bin/systemctl disable nginx-create-session-ticket-keys.service >/dev/null 2>&1
     /usr/bin/systemctl disable nginx-rotate-session-ticket-keys.service >/dev/null 2>&1
     /usr/bin/systemctl disable nginx-rotate-session-ticket-keys.timer >/dev/null 2>&1
-    /usr/bin/systemctl disable usr-local-nginx-conf-session_ticket_keys.mount >/dev/null 2>&1
     /usr/bin/systemctl stop nginx-create-session-ticket-keys.service >/dev/null 2>&1
     /usr/bin/systemctl stop nginx-rotate-session-ticket-keys.service >/dev/null 2>&1
+    /usr/bin/systemctl stop nginx-rotate-session-ticket-keys.timer >/dev/null 2>&1
     /usr/bin/systemctl daemon-reload >/dev/null 2>&1
     /usr/bin/rm -f /usr/local/bin/manage-session-keys
     /usr/bin/rm -f /usr/lib/systemd/system/usr-local-nginx-conf-session_ticket_keys.automount
@@ -30,6 +30,9 @@ uninstall_keys() {
       /usr/bin/sed -i '/ssl-session-ticket-keys.conf/d' /usr/local/nginx/conf/ssl_include.conf
     fi
     /usr/bin/systemctl reload nginx >/dev/null 2>&1
+    # only stop tmpfs mount after nginx reload
+    /usr/bin/systemctl disable usr-local-nginx-conf-session_ticket_keys.mount >/dev/null 2>&1
+    /usr/bin/systemctl stop usr-local-nginx-conf-session_ticket_keys.mount >/dev/null 2>&1
     echo "nginx session ticket keys uninstalled"
   fi
 }
@@ -49,6 +52,7 @@ setup_keys() {
     /usr/bin/systemctl start usr-local-nginx-conf-session_ticket_keys.mount >/dev/null 2>&1
     /usr/bin/systemctl start nginx-create-session-ticket-keys.service >/dev/null 2>&1
     # /usr/bin/systemctl start nginx-rotate-session-ticket-keys.service >/dev/null 2>&1
+    /usr/bin/systemctl start nginx-rotate-session-ticket-keys.timer >/dev/null 2>&1
     /usr/bin/systemctl enable nginx-create-session-ticket-keys.service >/dev/null 2>&1
     /usr/bin/systemctl enable nginx-rotate-session-ticket-keys.service >/dev/null 2>&1
     /usr/bin/systemctl enable nginx-rotate-session-ticket-keys.timer >/dev/null 2>&1
