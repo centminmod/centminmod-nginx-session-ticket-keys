@@ -9,12 +9,6 @@ Group=root
 ExecStart=/usr/local/bin/manage-session-keys rotate
 ExecStartPost=systemctl reload nginx.service
 
-PrivateDevices=true
-PrivateIPC=true
-PrivateNetwork=true
-PrivateTmp=true
-PrivateUsers=true
-
 # filesystem restrictions
 ProtectSystem=strict
 ReadWritePaths=/usr/local/nginx/conf/session_ticket_keys
