@@ -117,11 +117,12 @@ status_keys(){
 
 check_resumption(){
   domain=$1
-  domain_session_info=$(echo | openssl s_client -connect $domain:443 -reconnect -no_ticket -servername $domain 2>&1)
+  # domain_session_info=$(echo | openssl s_client -connect $domain:443 -reconnect -no_ticket -servername $domain 2>&1)
+  domain_session_info=$(echo | openssl s_client -connect $domain:443 -reconnect -servername $domain 2>&1)
   echo "------------------------------------------"
-  echo "$domain_session_info" | egrep 'New|Reused|Protocol|Cipher|Session-ID:|Master-Key' | head -n5 | sed -e 's|, |-|g' -e 's| is |: |' -e 's|\/|-|' | awk -F ":" '{print $1  $2}' | xargs -n2
+  echo "$domain_session_info" | egrep '0000 - |New|Reused|Protocol|Cipher|Session-ID:|Master-Key' | head -n6 | sed -e 's|, |-|g' -e 's| is |: |' -e 's|\/|-|' -e 's| - |: |'
   echo "------------------------------------------"
-  echo "$domain_session_info" | egrep 'New|Reused|Protocol|Cipher|Session-ID:|Master-Key' | tail -5 | sed -e 's|, |-|g' -e 's| is |: |' -e 's|\/|-|' | awk -F ":" '{print $1  $2}' | xargs -n2
+  echo "$domain_session_info" | egrep '0000 - |New|Reused|Protocol|Cipher|Session-ID:|Master-Key' | tail -6 | sed -e 's|, |-|g' -e 's| is |: |' -e 's|\/|-|' -e 's| - |: |'
 }
 
 help() {
