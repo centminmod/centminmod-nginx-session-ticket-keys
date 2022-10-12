@@ -7,9 +7,6 @@ Type=oneshot
 User=root
 Group=root
 ExecStart=/usr/local/bin/manage-session-keys rotate
-ExecStartPost=systemctl reload nginx.service
+ExecStartPost=/usr/bin/systemctl reload nginx.service
 
-# filesystem restrictions
-ProtectSystem=strict
-ReadWritePaths=/usr/local/nginx/conf/session_ticket_keys
 UMask=0077
