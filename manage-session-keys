@@ -88,10 +88,7 @@ rotate_keys() {
   done
 
   rm -f 9.key
-
-  if [ "$#" -gt 0 ]; then
-    [ "$1" = '-r' ] && /usr/local/sbin/nginx -s reload
-  fi
+  /usr/local/sbin/nginx -s reload
 }
 
 help() {
