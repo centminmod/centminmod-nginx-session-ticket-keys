@@ -45,7 +45,7 @@ setup_keys() {
     /usr/bin/systemctl enable usr-local-nginx-conf-session_ticket_keys.mount >/dev/null 2>&1
     /usr/bin/systemctl start usr-local-nginx-conf-session_ticket_keys.mount >/dev/null 2>&1
     /usr/bin/systemctl start nginx-create-session-ticket-keys.service >/dev/null 2>&1
-    /usr/bin/systemctl start nginx-rotate-session-ticket-keys.service >/dev/null 2>&1
+    # /usr/bin/systemctl start nginx-rotate-session-ticket-keys.service >/dev/null 2>&1
     /usr/bin/systemctl enable nginx-create-session-ticket-keys.service >/dev/null 2>&1
     /usr/bin/systemctl enable nginx-rotate-session-ticket-keys.service >/dev/null 2>&1
     /usr/bin/systemctl enable nginx-rotate-session-ticket-keys.timer >/dev/null 2>&1
@@ -84,22 +84,22 @@ rotate_keys() {
   /usr/bin/cd /usr/local/nginx/conf/session_ticket_keys
 
   for i in 1 2 3 4 5 6 7 8; do
-    /usr/bin/cp -p "$((i + 1)).key" tmp.key
-    /usr/bin/mv -f tmp.key "$i.key"
+    /usr/bin/cp -p "/usr/local/nginx/conf/session_ticket_keys/$((i + 1)).key" /usr/local/nginx/conf/session_ticket_keys/tmp.key >/dev/null 2>&1
+    /usr/bin/mv -f /usr/local/nginx/conf/session_ticket_keys/tmp.key "/usr/local/nginx/conf/session_ticket_keys/$i.key" >/dev/null 2>&1
   done
-  if [ -f 9.key ]; then
-    /usr/bin/rm -f 9.key
+  if [ -f /usr/local/nginx/conf/session_ticket_keys/9.key ]; then
+    /usr/bin/rm -f /usr/local/nginx/conf/session_ticket_keys/9.key >/dev/null 2>&1
   fi
-  /usr/local/sbin/nginx -s reload
+  /usr/local/sbin/nginx -s reload >/dev/null 2>&1
 }
 
 status_keys(){
     echo
     echo "/usr/bin/systemctl status nginx-create-session-ticket-keys.service"
     /usr/bin/systemctl status nginx-create-session-ticket-keys.service
-    echo
-    echo "/usr/bin/systemctl status nginx-rotate-session-ticket-keys.service"
-    /usr/bin/systemctl status nginx-rotate-session-ticket-keys.service
+    # echo
+    # echo "/usr/bin/systemctl status nginx-rotate-session-ticket-keys.service"
+    # /usr/bin/systemctl status nginx-rotate-session-ticket-keys.service
     # echo
     # echo "/usr/bin/systemctl status nginx-rotate-session-ticket-keys.timer"
     # /usr/bin/systemctl status nginx-rotate-session-ticket-keys.timer
