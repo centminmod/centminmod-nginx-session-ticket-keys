@@ -3,6 +3,7 @@
 # setup nginx TLS session ticket keys and rotation for perfect forward secrecy
 # on Centmin Mod Nginx based servers (centminmod.com)
 # https://en.wikipedia.org/wiki/Forward_secrecy
+# https://blog.cloudflare.com/tls-session-resumption-full-speed-and-secure/
 ###############################################################################
 export PATH="/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin"
 set -o errexit
@@ -116,7 +117,7 @@ status_keys(){
 
 check_resumption(){
   domain=$1
-  echo | openssl s_client -connect $domain:443 -reconnect -no_ticket -servername $domain
+  echo | openssl s_client -connect $domain:443 -reconnect -no_ticket -servername $domain 2>&1 | egrep 'New|Reused|Protocol|Cipher|Session-ID:|Master-Key'
 }
 
 help() {
