@@ -11,16 +11,16 @@ uninstall_keys() {
     systemctl disable nginx-create-session-ticket-keys.service >/dev/null 2>&1
     systemctl disable nginx-rotate-session-ticket-keys.service >/dev/null 2>&1
     systemctl disable nginx-rotate-session-ticket-keys.timer >/dev/null 2>&1
-    systemctl disable nginx-session_ticket_keys.mount >/dev/null 2>&1
+    systemctl disable usr-local-nginx-conf-session_ticket_keys.mount >/dev/null 2>&1
     systemctl stop nginx-create-session-ticket-keys.service >/dev/null 2>&1
     systemctl stop nginx-rotate-session-ticket-keys.service >/dev/null 2>&1
     systemctl daemon-reload >/dev/null 2>&1
     rm -f /usr/local/bin/manage-session-keys
-    rm -f /usr/lib/systemd/system/nginx-session_ticket_keys.automount
+    rm -f /usr/lib/systemd/system/usr-local-nginx-conf-session_ticket_keys.automount
     rm -f /usr/lib/systemd/system/nginx-rotate-session-ticket-keys.timer
     rm -f /usr/lib/systemd/system/nginx-create-session-ticket-keys.service
     rm -f /usr/lib/systemd/system/nginx-rotate-session-ticket-keys.service
-    rm -f /usr/lib/systemd/system/nginx-session_ticket_keys.mount
+    rm -f /usr/lib/systemd/system/usr-local-nginx-conf-session_ticket_keys.mount
     sed -i '/ssl_session_ticket_key/d' /usr/local/nginx/conf/ssl_include.conf
     if [ -f /usr/local/nginx/conf/ssl-session-ticket-keys.conf ]; then
       rm -f /usr/local/nginx/conf/ssl-session-ticket-keys.conf
@@ -35,19 +35,19 @@ setup_keys() {
     # setup Centmin Mod nginx TLS session keys
     wget -q -O /usr/local/bin/manage-session-keys https://raw.githubusercontent.com/centminmod/centminmod-nginx-session-ticket-keys/master/manage-session-keys
     chmod +x /usr/local/bin/manage-session-keys
-    wget -q -O /usr/lib/systemd/system/nginx-session_ticket_keys.automount https://raw.githubusercontent.com/centminmod/centminmod-nginx-session-ticket-keys/master/nginx-session_ticket_keys.automount
+    wget -q -O /usr/lib/systemd/system/usr-local-nginx-conf-session_ticket_keys.automount https://raw.githubusercontent.com/centminmod/centminmod-nginx-session-ticket-keys/master/usr-local-nginx-conf-session_ticket_keys.automount
     wget -q -O /usr/lib/systemd/system/nginx-rotate-session-ticket-keys.timer https://raw.githubusercontent.com/centminmod/centminmod-nginx-session-ticket-keys/master/nginx-rotate-session-ticket-keys.timer
     wget -q -O /usr/lib/systemd/system/nginx-create-session-ticket-keys.service https://raw.githubusercontent.com/centminmod/centminmod-nginx-session-ticket-keys/master/nginx-create-session-ticket-keys.service
     wget -q -O /usr/lib/systemd/system/nginx-rotate-session-ticket-keys.service https://raw.githubusercontent.com/centminmod/centminmod-nginx-session-ticket-keys/master/nginx-rotate-session-ticket-keys.service
-    wget -q -O /usr/lib/systemd/system/nginx-session_ticket_keys.mount https://raw.githubusercontent.com/centminmod/centminmod-nginx-session-ticket-keys/master/nginx-session_ticket_keys.mount
+    wget -q -O /usr/lib/systemd/system/usr-local-nginx-conf-session_ticket_keys.mount https://raw.githubusercontent.com/centminmod/centminmod-nginx-session-ticket-keys/master/usr-local-nginx-conf-session_ticket_keys.mount
     systemctl daemon-reload >/dev/null 2>&1
-    systemctl start nginx-session_ticket_keys.mount >/dev/null 2>&1
+    systemctl enable usr-local-nginx-conf-session_ticket_keys.mount >/dev/null 2>&1
+    systemctl start usr-local-nginx-conf-session_ticket_keys.mount >/dev/null 2>&1
     systemctl start nginx-create-session-ticket-keys.service >/dev/null 2>&1
     systemctl start nginx-rotate-session-ticket-keys.service >/dev/null 2>&1
     systemctl enable nginx-create-session-ticket-keys.service >/dev/null 2>&1
     systemctl enable nginx-rotate-session-ticket-keys.service >/dev/null 2>&1
     systemctl enable nginx-rotate-session-ticket-keys.timer >/dev/null 2>&1
-    systemctl enable nginx-session_ticket_keys.mount >/dev/null 2>&1
     echo "nginx session ticket keys setup"
   else
     echo "/usr/lib/systemd/system/nginx.service not detected"
@@ -102,8 +102,8 @@ status_keys(){
     echo "systemctl status nginx-rotate-session-ticket-keys.timer"
     systemctl status nginx-rotate-session-ticket-keys.timer
     echo
-    echo "systemctl status nginx-session_ticket_keys.mount"
-    systemctl status nginx-session_ticket_keys.mount
+    echo "systemctl status usr-local-nginx-conf-session_ticket_keys.mount"
+    systemctl status usr-local-nginx-conf-session_ticket_keys.mount
 }
 
 help() {

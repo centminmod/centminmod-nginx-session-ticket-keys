@@ -2,9 +2,9 @@
 Description=Ramdisk Mount for Centmin Mod nginx TLS session ticket keys
 
 [Mount]
-What=ramfs
+What=tmpfs
 Where=/usr/local/nginx/conf/session_ticket_keys
-Type=ramfs
+Type=tmpfs
 Options=mode=0700
 DirectoryMode=0700
 
