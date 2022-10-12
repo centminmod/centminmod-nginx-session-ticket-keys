@@ -14,6 +14,17 @@ systemctl status nginx-rotate-session-ticket-keys.service
 systemctl status nginx-rotate-session-ticket-keys.timer
 systemctl status nginx-session_ticket_keys.mount
 ```
+```
+/usr/local/bin/manage-session-keys
+
+Usage:
+
+/usr/local/bin/manage-session-keys setup
+/usr/local/bin/manage-session-keys create
+/usr/local/bin/manage-session-keys rotate
+/usr/local/bin/manage-session-keys uninstall
+/usr/local/bin/manage-session-keys status
+```
 
 Add to each Centmin Mod Nginx Vhosts with HTTPS enabled i.e. `/usr/local/nginx/conf/conf.d/domain.com.ssl.conf` the following:
 
