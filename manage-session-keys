@@ -51,11 +51,11 @@ setup_keys() {
     /usr/bin/systemctl enable usr-local-nginx-conf-session_ticket_keys.mount >/dev/null 2>&1
     /usr/bin/systemctl start usr-local-nginx-conf-session_ticket_keys.mount >/dev/null 2>&1
     /usr/bin/systemctl start nginx-create-session-ticket-keys.service >/dev/null 2>&1
-    # /usr/bin/systemctl start nginx-rotate-session-ticket-keys.service >/dev/null 2>&1
+    /usr/bin/systemctl start nginx-rotate-session-ticket-keys.service >/dev/null 2>&1
+    /usr/bin/systemctl enable nginx-rotate-session-ticket-keys.timer >/dev/null 2>&1
     /usr/bin/systemctl start nginx-rotate-session-ticket-keys.timer >/dev/null 2>&1
     /usr/bin/systemctl enable nginx-create-session-ticket-keys.service >/dev/null 2>&1
     /usr/bin/systemctl enable nginx-rotate-session-ticket-keys.service >/dev/null 2>&1
-    /usr/bin/systemctl enable nginx-rotate-session-ticket-keys.timer >/dev/null 2>&1
     echo "nginx session ticket keys setup"
     if [[ -f /usr/local/nginx/conf/ssl_include.conf && ! "$(grep 'ssl-session-ticket-keys.conf' /usr/local/nginx/conf/ssl_include.conf)" ]]; then
       echo 'include /usr/local/nginx/conf/ssl-session-ticket-keys.conf;' >> /usr/local/nginx/conf/ssl_include.conf
@@ -123,9 +123,11 @@ check_resumption(){
   # domain_session_info=$(echo | openssl s_client -connect $domain:443 -reconnect -no_ticket -servername $domain 2>&1)
   domain_session_info=$(echo | openssl s_client -connect $domain:443 -reconnect -servername $domain 2>&1)
   echo "------------------------------------------"
-  echo "$domain_session_info" | egrep '0000 - |New|Reused|Protocol|Cipher|Session-ID:|Master-Key' | head -n6 | sed -e 's|, |-|g' -e 's| is |: |' -e 's|\/|-|' -e 's| - |: |'
+  echo "$domain_session_info" | egrep '0000 - |TLS session ticket lifetime hint:|New|Reused|Protocol|Cipher|Session-ID:|Master-Key|Start Time:' | head -n8 | sed -e 's|, |-|g' -e 's| is |: |' -e 's|\/|-|' -e 's| - |: |'
   echo "------------------------------------------"
-  echo "$domain_session_info" | egrep '0000 - |New|Reused|Protocol|Cipher|Session-ID:|Master-Key' | tail -6 | sed -e 's|, |-|g' -e 's| is |: |' -e 's|\/|-|' -e 's| - |: |'
+  echo "$domain_session_info" | egrep '0000 - |TLS session ticket lifetime hint:|New|Reused|Protocol|Cipher|Session-ID:|Master-Key|Start Time:' | tail -8 | sed -e 's|, |-|g' -e 's| is |: |' -e 's|\/|-|' -e 's| - |: |'
+  echo "------------------------------------------"
+  echo "    nginx process ids: $(pidof nginx)"
 }
 
 help() {
