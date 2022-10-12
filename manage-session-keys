@@ -120,12 +120,19 @@ status_keys(){
 
 check_resumption(){
   domain=$1
-  # domain_session_info=$(echo | openssl s_client -connect $domain:443 -reconnect -no_ticket -servername $domain 2>&1)
-  domain_session_info=$(echo | openssl s_client -connect $domain:443 -reconnect -servername $domain 2>&1)
+  no_client_ticket=$2
   echo "------------------------------------------"
-  echo "$domain_session_info" | egrep '0000 - |TLS session ticket lifetime hint:|New|Reused|Protocol|Cipher|Session-ID:|Master-Key|Start Time:' | head -n8 | sed -e 's|, |-|g' -e 's| is |: |' -e 's|\/|-|' -e 's| - |: |'
-  echo "------------------------------------------"
-  echo "$domain_session_info" | egrep '0000 - |TLS session ticket lifetime hint:|New|Reused|Protocol|Cipher|Session-ID:|Master-Key|Start Time:' | tail -8 | sed -e 's|, |-|g' -e 's| is |: |' -e 's|\/|-|' -e 's| - |: |'
+  if [[ "$no_client_ticket" = [yY] ]]; then
+    domain_session_info=$(echo | openssl s_client -connect $domain:443 -reconnect -no_ticket -servername $domain 2>&1)
+    echo "$domain_session_info" | egrep '0000 - |TLS session ticket lifetime hint:|New|Reused|Protocol|Cipher|Session-ID:|Master-Key|Start Time:' | head -n6 | sed -e 's|, |-|g' -e 's| is |: |' -e 's|\/|-|' -e 's| - |: |'
+    echo "------------------------------------------"
+    echo "$domain_session_info" | egrep '0000 - |TLS session ticket lifetime hint:|New|Reused|Protocol|Cipher|Session-ID:|Master-Key|Start Time:' | tail -6 | sed -e 's|, |-|g' -e 's| is |: |' -e 's|\/|-|' -e 's| - |: |'
+  else
+    domain_session_info=$(echo | openssl s_client -connect $domain:443 -reconnect -servername $domain 2>&1)
+    echo "$domain_session_info" | egrep '0000 - |TLS session ticket lifetime hint:|New|Reused|Protocol|Cipher|Session-ID:|Master-Key|Start Time:' | head -n8 | sed -e 's|, |-|g' -e 's| is |: |' -e 's|\/|-|' -e 's| - |: |'
+    echo "------------------------------------------"
+    echo "$domain_session_info" | egrep '0000 - |TLS session ticket lifetime hint:|New|Reused|Protocol|Cipher|Session-ID:|Master-Key|Start Time:' | tail -8 | sed -e 's|, |-|g' -e 's| is |: |' -e 's|\/|-|' -e 's| - |: |'
+  fi
   echo "------------------------------------------"
   echo "    nginx process ids: $(pidof nginx)"
 }
@@ -140,6 +147,7 @@ help() {
   echo "$0 uninstall"
   echo "$0 status"
   echo "$0 check-domain yourdomain.com"
+  echo "$0 check-domain-noclient yourdomain.com"
 }
 
 case "$1" in
@@ -161,6 +169,13 @@ case "$1" in
   check-domain )
     if [ -n "$2" ]; then
       check_resumption "$2"
+    else
+      echo "$0 check-domain yourdomain.com"
+    fi
+    ;;
+  check-domain-noclient )
+    if [ -n "$2" ]; then
+      check_resumption "$2" y
     else
       echo "$0 check-domain yourdomain.com"
     fi
