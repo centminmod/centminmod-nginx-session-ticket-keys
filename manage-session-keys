@@ -26,6 +26,9 @@ uninstall_keys() {
     if [ -f /usr/local/nginx/conf/ssl-session-ticket-keys.conf ]; then
       /usr/bin/rm -f /usr/local/nginx/conf/ssl-session-ticket-keys.conf
     fi
+    if [[ -f /usr/local/nginx/conf/ssl_include.conf && "$(grep 'ssl-session-ticket-keys.conf' /usr/local/nginx/conf/ssl_include.conf)" ]]; then
+      /usr/bin/sed -i '/ssl-session-ticket-keys.conf/d' /usr/local/nginx/conf/ssl_include.conf
+    fi
     /usr/bin/systemctl reload nginx >/dev/null 2>&1
     echo "nginx session ticket keys uninstalled"
   fi
@@ -50,6 +53,9 @@ setup_keys() {
     /usr/bin/systemctl enable nginx-rotate-session-ticket-keys.service >/dev/null 2>&1
     /usr/bin/systemctl enable nginx-rotate-session-ticket-keys.timer >/dev/null 2>&1
     echo "nginx session ticket keys setup"
+    if [[ -f /usr/local/nginx/conf/ssl_include.conf && ! "$(grep 'ssl-session-ticket-keys.conf' /usr/local/nginx/conf/ssl_include.conf)" ]]; then
+      echo 'include /usr/local/nginx/conf/ssl-session-ticket-keys.conf;' >> /usr/local/nginx/conf/ssl_include.conf
+    fi
   else
     echo "/usr/lib/systemd/system/nginx.service not detected"
     exit 1
