@@ -4,6 +4,7 @@
 # on Centmin Mod Nginx based servers (centminmod.com)
 # https://en.wikipedia.org/wiki/Forward_secrecy
 # https://blog.cloudflare.com/tls-session-resumption-full-speed-and-secure/
+# https://github.com/vincentbernat/rfc5077
 ###############################################################################
 export PATH="/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin"
 
@@ -121,18 +122,29 @@ status_keys(){
 check_resumption(){
   domain=$1
   no_client_ticket=$2
-  echo "------------------------------------------"
-  if [[ "$no_client_ticket" = [yY] ]]; then
-    domain_session_info=$(echo | openssl s_client -connect $domain:443 -reconnect -no_ticket -servername $domain 2>&1)
-    echo "$domain_session_info" | egrep '0000 - |TLS session ticket lifetime hint:|New|Reused|Protocol|Cipher|Session-ID:|Master-Key|Start Time:' | head -n6 | sed -e 's|, |-|g' -e 's| is |: |' -e 's|\/|-|' -e 's| - |: |'
-    echo "------------------------------------------"
-    echo "$domain_session_info" | egrep '0000 - |TLS session ticket lifetime hint:|New|Reused|Protocol|Cipher|Session-ID:|Master-Key|Start Time:' | tail -6 | sed -e 's|, |-|g' -e 's| is |: |' -e 's|\/|-|' -e 's| - |: |'
+  # support checking multiple domains
+  check_comma=$(echo $domain | grep ',')
+  if [ -n "$check_comma" ]; then
+    domains=$(echo $domain | sed -e 's|,| |g')
   else
-    domain_session_info=$(echo | openssl s_client -connect $domain:443 -reconnect -servername $domain 2>&1)
-    echo "$domain_session_info" | egrep '0000 - |TLS session ticket lifetime hint:|New|Reused|Protocol|Cipher|Session-ID:|Master-Key|Start Time:' | head -n8 | sed -e 's|, |-|g' -e 's| is |: |' -e 's|\/|-|' -e 's| - |: |'
-    echo "------------------------------------------"
-    echo "$domain_session_info" | egrep '0000 - |TLS session ticket lifetime hint:|New|Reused|Protocol|Cipher|Session-ID:|Master-Key|Start Time:' | tail -8 | sed -e 's|, |-|g' -e 's| is |: |' -e 's|\/|-|' -e 's| - |: |'
+    domains="$domain"
   fi
+  for domain in $domains; do
+    echo "------------------------------------------"
+    echo "checking: $domain TLS resumption"
+    echo "------------------------------------------"
+    if [[ "$no_client_ticket" = [yY] ]]; then
+      domain_session_info=$(echo | openssl s_client -connect $domain:443 -reconnect -no_ticket -servername $domain 2>&1)
+      echo "$domain_session_info" | egrep '0000 - |TLS session ticket lifetime hint:|New|Reused|Protocol|Cipher|Session-ID:|Master-Key|Start Time:' | head -n6 | sed -e 's|, |-|g' -e 's| is |: |' -e 's|\/|-|' -e 's| - |: |'
+      echo "------------------------------------------"
+      echo "$domain_session_info" | egrep '0000 - |TLS session ticket lifetime hint:|New|Reused|Protocol|Cipher|Session-ID:|Master-Key|Start Time:' | tail -6 | sed -e 's|, |-|g' -e 's| is |: |' -e 's|\/|-|' -e 's| - |: |'
+    else
+      domain_session_info=$(echo | openssl s_client -connect $domain:443 -reconnect -servername $domain 2>&1)
+      echo "$domain_session_info" | egrep '0000 - |TLS session ticket lifetime hint:|New|Reused|Protocol|Cipher|Session-ID:|Master-Key|Start Time:' | head -n8 | sed -e 's|, |-|g' -e 's| is |: |' -e 's|\/|-|' -e 's| - |: |'
+      echo "------------------------------------------"
+      echo "$domain_session_info" | egrep '0000 - |TLS session ticket lifetime hint:|New|Reused|Protocol|Cipher|Session-ID:|Master-Key|Start Time:' | tail -8 | sed -e 's|, |-|g' -e 's| is |: |' -e 's|\/|-|' -e 's| - |: |'
+    fi
+  done
   echo "------------------------------------------"
   echo "    nginx process ids: $(pidof nginx)"
 }

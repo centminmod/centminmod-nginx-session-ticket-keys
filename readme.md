@@ -124,6 +124,54 @@ Reused-TLSv1-SSLv3-Cipher: ECDHE-RSA-AES128-GCM-SHA256
     nginx process ids: 12375 12360 12357 12340 12291 12290 12289 12288 12287 12286
 ```
 
+Checking multiple domains on the Centmin Mod server via comma separated domain list. These 2 domains are on different server IP addresses on same server.
+
+```
+/usr/local/bin/manage-session-keys check-domain domain1.com,domain2.com
+------------------------------------------
+checking: domain1.com TLS resumption
+------------------------------------------
+New-TLSv1-SSLv3-Cipher: ECDHE-ECDSA-AES128-GCM-SHA256
+    Protocol  : TLSv1.2
+    Cipher    : ECDHE-ECDSA-AES128-GCM-SHA256
+    Session-ID: 7CBB3CB6A4BCEC1659C7EA960AF57724F01D1D3CBAD5EEEF6A553E800418D8F9
+    Master-Key: 28285EDD4AEB43DAA2BF71A6AFF9C9137C31084DF1FC2CCF0C5B2AD5064C7D2F783D1DF9E51F790D6744937303BB1563
+    TLS session ticket lifetime hint: 3600 (seconds)
+    0000: 0c 1d c9 e8 41 7c e9 fb-06 19 51 4a 24 8b fb 42   ....A|....QJ$..B
+    Start Time: 1665620404
+------------------------------------------
+Reused-TLSv1-SSLv3-Cipher: ECDHE-ECDSA-AES128-GCM-SHA256
+    Protocol  : TLSv1.2
+    Cipher    : ECDHE-ECDSA-AES128-GCM-SHA256
+    Session-ID: 7CBB3CB6A4BCEC1659C7EA960AF57724F01D1D3CBAD5EEEF6A553E800418D8F9
+    Master-Key: 28285EDD4AEB43DAA2BF71A6AFF9C9137C31084DF1FC2CCF0C5B2AD5064C7D2F783D1DF9E51F790D6744937303BB1563
+    TLS session ticket lifetime hint: 3600 (seconds)
+    0000: 0c 1d c9 e8 41 7c e9 fb-06 19 51 4a 24 8b fb 42   ....A|....QJ$..B
+    Start Time: 1665620404
+------------------------------------------
+checking: domain2.com TLS resumption
+------------------------------------------
+New-TLSv1-SSLv3-Cipher: ECDHE-RSA-AES128-GCM-SHA256
+    Protocol  : TLSv1.2
+    Cipher    : ECDHE-RSA-AES128-GCM-SHA256
+    Session-ID: 3053542003A97977504D03B7E3CFA29FA8FEB172BA0C9CD0308B5E97737DEC76
+    Master-Key: 2548FA5D22966F3A678458FEF126577DC1E2B1D7C128BE8E263D3956238E74E8A3EC9375FA59E2D84A7323EBC04F6B79
+    TLS session ticket lifetime hint: 600 (seconds)
+    0000: c6 aa 2c 0e 14 89 9b 57-34 a3 20 d3 0d 0f 82 33   ..,....W4. ....3
+    Start Time: 1665620404
+------------------------------------------
+Reused-TLSv1-SSLv3-Cipher: ECDHE-RSA-AES128-GCM-SHA256
+    Protocol  : TLSv1.2
+    Cipher    : ECDHE-RSA-AES128-GCM-SHA256
+    Session-ID: 3053542003A97977504D03B7E3CFA29FA8FEB172BA0C9CD0308B5E97737DEC76
+    Master-Key: 2548FA5D22966F3A678458FEF126577DC1E2B1D7C128BE8E263D3956238E74E8A3EC9375FA59E2D84A7323EBC04F6B79
+    TLS session ticket lifetime hint: 600 (seconds)
+    0000: c6 aa 2c 0e 14 89 9b 57-34 a3 20 d3 0d 0f 82 33   ..,....W4. ....3
+    Start Time: 1665620404
+------------------------------------------
+    nginx process ids: 49459 39206 39189 39172 39155 39122 39105 39104 39103 39102
+```
+
 # Check Nginx TLS Session Key Rotation
 
 Check Centmin Mod Nginx's vhost session ticket key rotation where the `0000: ` line is first part of the session ticket key's hex bytes
