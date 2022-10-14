@@ -48,6 +48,10 @@ ssl_session_ticket_key /usr/local/nginx/conf/session_ticket_keys/5.key;
 ssl_session_ticket_key /usr/local/nginx/conf/session_ticket_keys/6.key;
 ssl_session_ticket_key /usr/local/nginx/conf/session_ticket_keys/7.key;
 ssl_session_ticket_key /usr/local/nginx/conf/session_ticket_keys/8.key;
+ssl_session_ticket_key /usr/local/nginx/conf/session_ticket_keys/9.key;
+ssl_session_ticket_key /usr/local/nginx/conf/session_ticket_keys/10.key;
+ssl_session_ticket_key /usr/local/nginx/conf/session_ticket_keys/11.key;
+ssl_session_ticket_key /usr/local/nginx/conf/session_ticket_keys/12.key;
 ```
 
 Example excerpt
@@ -67,6 +71,10 @@ server {
   ssl_session_ticket_key /usr/local/nginx/conf/session_ticket_keys/6.key;
   ssl_session_ticket_key /usr/local/nginx/conf/session_ticket_keys/7.key;
   ssl_session_ticket_key /usr/local/nginx/conf/session_ticket_keys/8.key;
+  ssl_session_ticket_key /usr/local/nginx/conf/session_ticket_keys/9.key;
+  ssl_session_ticket_key /usr/local/nginx/conf/session_ticket_keys/10.key;
+  ssl_session_ticket_key /usr/local/nginx/conf/session_ticket_keys/11.key;
+  ssl_session_ticket_key /usr/local/nginx/conf/session_ticket_keys/12.key;
 ```
 
 Or instead of within each Nginx vhost, add globally to existing include file `/usr/local/nginx/conf/ssl_include.conf` via a new include file `/usr/local/nginx/conf/ssl-session-ticket-keys.conf`.
@@ -90,6 +98,10 @@ ssl_session_ticket_key /usr/local/nginx/conf/session_ticket_keys/5.key;
 ssl_session_ticket_key /usr/local/nginx/conf/session_ticket_keys/6.key;
 ssl_session_ticket_key /usr/local/nginx/conf/session_ticket_keys/7.key;
 ssl_session_ticket_key /usr/local/nginx/conf/session_ticket_keys/8.key;
+ssl_session_ticket_key /usr/local/nginx/conf/session_ticket_keys/9.key;
+ssl_session_ticket_key /usr/local/nginx/conf/session_ticket_keys/10.key;
+ssl_session_ticket_key /usr/local/nginx/conf/session_ticket_keys/11.key;
+ssl_session_ticket_key /usr/local/nginx/conf/session_ticket_keys/12.key;
 ```
 
 **Notes**

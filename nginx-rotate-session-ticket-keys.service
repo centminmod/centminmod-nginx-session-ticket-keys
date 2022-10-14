@@ -7,4 +7,5 @@ Type=oneshot
 User=root
 Group=root
 ExecStart=/usr/local/bin/manage-session-keys rotate
-ExecStartPost=/usr/bin/systemctl reload nginx.service
+ExecStartPost=-/usr/bin/systemctl reload nginx.service
+ExecStartPost=-/usr/bin/echo nginx rotate tls session ticket keys | /usr/bin/systemd-cat -t nginx

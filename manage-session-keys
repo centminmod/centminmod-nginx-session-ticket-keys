@@ -78,7 +78,7 @@ create_keys() {
     touch /usr/local/nginx/conf/ssl-session-ticket-keys.conf
   fi
 
-  for i in 1 2 3 4 5 6 7 8; do
+  for i in 1 2 3 4 5 6 7 8 9 10 11 12; do
     /usr/bin/openssl rand -out ${i}.key 80
     echo "ssl_session_ticket_key /usr/local/nginx/conf/session_ticket_keys/${i}.key;" >> /usr/local/nginx/conf/ssl-session-ticket-keys.conf
   done
@@ -94,12 +94,12 @@ rotate_keys() {
 
   /usr/bin/cd /usr/local/nginx/conf/session_ticket_keys
 
-  for i in 1 2 3 4 5 6 7 8; do
+  for i in 1 2 3 4 5 6 7 8 9 10 11 12; do
     /usr/bin/cp -p "/usr/local/nginx/conf/session_ticket_keys/$((i + 1)).key" /usr/local/nginx/conf/session_ticket_keys/tmp.key >/dev/null 2>&1
     /usr/bin/mv -f /usr/local/nginx/conf/session_ticket_keys/tmp.key "/usr/local/nginx/conf/session_ticket_keys/$i.key" >/dev/null 2>&1
   done
-  if [ -f /usr/local/nginx/conf/session_ticket_keys/9.key ]; then
-    /usr/bin/rm -f /usr/local/nginx/conf/session_ticket_keys/9.key >/dev/null 2>&1
+  if [ -f /usr/local/nginx/conf/session_ticket_keys/13.key ]; then
+    /usr/bin/rm -f /usr/local/nginx/conf/session_ticket_keys/13.key >/dev/null 2>&1
   fi
   /usr/local/sbin/nginx -s reload >/dev/null 2>&1
 }
