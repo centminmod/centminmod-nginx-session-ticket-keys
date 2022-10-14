@@ -39,27 +39,56 @@ uninstall_keys() {
 }
 
 setup_keys() {
+  per_domain="$1"
   if [ -f /usr/lib/systemd/system/nginx.service ]; then
-    # setup Centmin Mod nginx TLS session keys
-    wget -q -O /usr/local/bin/manage-session-keys https://raw.githubusercontent.com/centminmod/centminmod-nginx-session-ticket-keys/master/manage-session-keys
-    chmod +x /usr/local/bin/manage-session-keys
-    wget -q -O /usr/lib/systemd/system/usr-local-nginx-conf-session_ticket_keys.automount https://raw.githubusercontent.com/centminmod/centminmod-nginx-session-ticket-keys/master/usr-local-nginx-conf-session_ticket_keys.automount
-    wget -q -O /usr/lib/systemd/system/nginx-rotate-session-ticket-keys.timer https://raw.githubusercontent.com/centminmod/centminmod-nginx-session-ticket-keys/master/nginx-rotate-session-ticket-keys.timer
-    wget -q -O /usr/lib/systemd/system/nginx-create-session-ticket-keys.service https://raw.githubusercontent.com/centminmod/centminmod-nginx-session-ticket-keys/master/nginx-create-session-ticket-keys.service
-    wget -q -O /usr/lib/systemd/system/nginx-rotate-session-ticket-keys.service https://raw.githubusercontent.com/centminmod/centminmod-nginx-session-ticket-keys/master/nginx-rotate-session-ticket-keys.service
-    wget -q -O /usr/lib/systemd/system/usr-local-nginx-conf-session_ticket_keys.mount https://raw.githubusercontent.com/centminmod/centminmod-nginx-session-ticket-keys/master/usr-local-nginx-conf-session_ticket_keys.mount
-    /usr/bin/systemctl daemon-reload >/dev/null 2>&1
-    /usr/bin/systemctl enable usr-local-nginx-conf-session_ticket_keys.mount >/dev/null 2>&1
-    /usr/bin/systemctl start usr-local-nginx-conf-session_ticket_keys.mount >/dev/null 2>&1
-    /usr/bin/systemctl start nginx-create-session-ticket-keys.service >/dev/null 2>&1
-    /usr/bin/systemctl start nginx-rotate-session-ticket-keys.service >/dev/null 2>&1
-    /usr/bin/systemctl enable nginx-rotate-session-ticket-keys.timer >/dev/null 2>&1
-    /usr/bin/systemctl start nginx-rotate-session-ticket-keys.timer >/dev/null 2>&1
-    /usr/bin/systemctl enable nginx-create-session-ticket-keys.service >/dev/null 2>&1
-    /usr/bin/systemctl enable nginx-rotate-session-ticket-keys.service >/dev/null 2>&1
-    echo "nginx session ticket keys setup"
-    if [[ -f /usr/local/nginx/conf/ssl_include.conf && ! "$(grep 'ssl-session-ticket-keys.conf' /usr/local/nginx/conf/ssl_include.conf)" ]]; then
-      echo 'include /usr/local/nginx/conf/ssl-session-ticket-keys.conf;' >> /usr/local/nginx/conf/ssl_include.conf
+    if [[ "$per_domain" = [yY] ]]; then
+      # setup Centmin Mod nginx TLS session keys
+      wget -q -O /usr/local/bin/manage-session-keys https://raw.githubusercontent.com/centminmod/centminmod-nginx-session-ticket-keys/master/manage-session-keys
+      chmod +x /usr/local/bin/manage-session-keys
+      wget -q -O /usr/lib/systemd/system/usr-local-nginx-conf-session_ticket_keys.automount https://raw.githubusercontent.com/centminmod/centminmod-nginx-session-ticket-keys/master/usr-local-nginx-conf-session_ticket_keys.automount
+      wget -q -O /usr/lib/systemd/system/nginx-rotate-session-ticket-keys.timer https://raw.githubusercontent.com/centminmod/centminmod-nginx-session-ticket-keys/master/nginx-rotate-session-ticket-keys.timer
+      wget -q -O /usr/lib/systemd/system/nginx-create-session-ticket-keys.service https://raw.githubusercontent.com/centminmod/centminmod-nginx-session-ticket-keys/master/nginx-create-session-ticket-keys.service
+      wget -q -O /usr/lib/systemd/system/nginx-rotate-session-ticket-keys.service https://raw.githubusercontent.com/centminmod/centminmod-nginx-session-ticket-keys/master/nginx-rotate-session-ticket-keys.service
+      wget -q -O /usr/lib/systemd/system/usr-local-nginx-conf-session_ticket_keys.mount https://raw.githubusercontent.com/centminmod/centminmod-nginx-session-ticket-keys/master/usr-local-nginx-conf-session_ticket_keys.mount
+      sed -i 's|manage-session-keys rotate|manage-session-keys rotate-perdomain|' /usr/lib/systemd/system/nginx-rotate-session-ticket-keys.service
+      sed -i 's|manage-session-keys create|manage-session-keys create-perdomain|' /usr/lib/systemd/system/nginx-create-session-ticket-keys.service
+      /usr/bin/systemctl daemon-reload >/dev/null 2>&1
+      /usr/bin/systemctl enable usr-local-nginx-conf-session_ticket_keys.mount >/dev/null 2>&1
+      /usr/bin/systemctl start usr-local-nginx-conf-session_ticket_keys.mount >/dev/null 2>&1
+      /usr/bin/systemctl start nginx-create-session-ticket-keys.service >/dev/null 2>&1
+      /usr/bin/systemctl start nginx-rotate-session-ticket-keys.service >/dev/null 2>&1
+      /usr/bin/systemctl enable nginx-rotate-session-ticket-keys.timer >/dev/null 2>&1
+      /usr/bin/systemctl start nginx-rotate-session-ticket-keys.timer >/dev/null 2>&1
+      /usr/bin/systemctl enable nginx-create-session-ticket-keys.service >/dev/null 2>&1
+      /usr/bin/systemctl enable nginx-rotate-session-ticket-keys.service >/dev/null 2>&1
+      if [[ -f /usr/local/nginx/conf/ssl_include.conf && "$(grep 'ssl-session-ticket-keys.conf' /usr/local/nginx/conf/ssl_include.conf)" ]]; then
+        /usr/bin/sed -i '/ssl-session-ticket-keys.conf/d' /usr/local/nginx/conf/ssl_include.conf
+      fi
+      echo "nginx session ticket keys setup"
+    else
+      # setup Centmin Mod nginx TLS session keys
+      wget -q -O /usr/local/bin/manage-session-keys https://raw.githubusercontent.com/centminmod/centminmod-nginx-session-ticket-keys/master/manage-session-keys
+      chmod +x /usr/local/bin/manage-session-keys
+      wget -q -O /usr/lib/systemd/system/usr-local-nginx-conf-session_ticket_keys.automount https://raw.githubusercontent.com/centminmod/centminmod-nginx-session-ticket-keys/master/usr-local-nginx-conf-session_ticket_keys.automount
+      wget -q -O /usr/lib/systemd/system/nginx-rotate-session-ticket-keys.timer https://raw.githubusercontent.com/centminmod/centminmod-nginx-session-ticket-keys/master/nginx-rotate-session-ticket-keys.timer
+      wget -q -O /usr/lib/systemd/system/nginx-create-session-ticket-keys.service https://raw.githubusercontent.com/centminmod/centminmod-nginx-session-ticket-keys/master/nginx-create-session-ticket-keys.service
+      wget -q -O /usr/lib/systemd/system/nginx-rotate-session-ticket-keys.service https://raw.githubusercontent.com/centminmod/centminmod-nginx-session-ticket-keys/master/nginx-rotate-session-ticket-keys.service
+      wget -q -O /usr/lib/systemd/system/usr-local-nginx-conf-session_ticket_keys.mount https://raw.githubusercontent.com/centminmod/centminmod-nginx-session-ticket-keys/master/usr-local-nginx-conf-session_ticket_keys.mount
+      sed -i 's|manage-session-keys rotate-perdomain|manage-session-keys rotate|' /usr/lib/systemd/system/nginx-rotate-session-ticket-keys.service
+      sed -i 's|manage-session-keys create-perdomain|manage-session-keys create|' /usr/lib/systemd/system/nginx-create-session-ticket-keys.service
+      /usr/bin/systemctl daemon-reload >/dev/null 2>&1
+      /usr/bin/systemctl enable usr-local-nginx-conf-session_ticket_keys.mount >/dev/null 2>&1
+      /usr/bin/systemctl start usr-local-nginx-conf-session_ticket_keys.mount >/dev/null 2>&1
+      /usr/bin/systemctl start nginx-create-session-ticket-keys.service >/dev/null 2>&1
+      /usr/bin/systemctl start nginx-rotate-session-ticket-keys.service >/dev/null 2>&1
+      /usr/bin/systemctl enable nginx-rotate-session-ticket-keys.timer >/dev/null 2>&1
+      /usr/bin/systemctl start nginx-rotate-session-ticket-keys.timer >/dev/null 2>&1
+      /usr/bin/systemctl enable nginx-create-session-ticket-keys.service >/dev/null 2>&1
+      /usr/bin/systemctl enable nginx-rotate-session-ticket-keys.service >/dev/null 2>&1
+      echo "nginx session ticket keys setup"
+      if [[ -f /usr/local/nginx/conf/ssl_include.conf && ! "$(grep 'ssl-session-ticket-keys.conf' /usr/local/nginx/conf/ssl_include.conf)" ]]; then
+        echo 'include /usr/local/nginx/conf/ssl-session-ticket-keys.conf;' >> /usr/local/nginx/conf/ssl_include.conf
+      fi
     fi
   else
     echo "/usr/lib/systemd/system/nginx.service not detected"
@@ -68,40 +97,93 @@ setup_keys() {
 }
 
 create_keys() {
+  per_domain="$1"
   /usr/bin/umask 077
 
-  cd /usr/local/nginx/conf/session_ticket_keys
-  if [ -f /usr/local/nginx/conf/ssl-session-ticket-keys.conf ]; then
-    /usr/bin/rm -f /usr/local/nginx/conf/ssl-session-ticket-keys.conf
-    /usr/bin/touch /usr/local/nginx/conf/ssl-session-ticket-keys.conf
+  if [[ "$per_domain" = [yY] ]]; then
+    # get server_names on server
+    domains_list=$(nginx -T 2>&1 | grep "server_name " | sed 's/.*server_name \(.*\);/\1/' | sed 's/ /\n/' | grep -v '\:' | sort | uniq | xargs -n1)
+    # see if the domain has a corresponding ssl config 
+    # directory at /usr/local/nginx/conf/ssl
+    for d in $domains_list; do
+      if [ -d /usr/local/nginx/conf/ssl/$d ]; then
+        mkdir -p /usr/local/nginx/conf/session_ticket_keys/$d
+        cd /usr/local/nginx/conf/session_ticket_keys/$d
+        touch /usr/local/nginx/conf/session_ticket_keys/${d}/ssl-session-ticket-keys.conf
+        if [ -f /usr/local/nginx/conf/session_ticket_keys/${d}/ssl-session-ticket-keys.conf ]; then
+          /usr/bin/rm -f /usr/local/nginx/conf/session_ticket_keys/${d}/ssl-session-ticket-keys.conf
+          /usr/bin/touch /usr/local/nginx/conf/session_ticket_keys/${d}/ssl-session-ticket-keys.conf
+        else
+          touch /usr/local/nginx/conf/session_ticket_keys/${d}/ssl-session-ticket-keys.conf
+        fi
+      
+        for i in 1 2 3 4 5 6 7 8 9 10 11 12; do
+          /usr/bin/openssl rand -out ${i}.key 80
+          echo "ssl_session_ticket_key /usr/local/nginx/conf/session_ticket_keys/${d}/${i}.key;" >> /usr/local/nginx/conf/session_ticket_keys/$d/ssl-session-ticket-keys.conf
+        done
+        echo "nginx session ticket keys created at:"
+        echo "/usr/local/nginx/conf/session_ticket_keys/${d}"
+        echo
+        echo "include file at:"
+        echo "/usr/local/nginx/conf/session_ticket_keys/$d/ssl-session-ticket-keys.conf"
+      fi
+    done
   else
-    touch /usr/local/nginx/conf/ssl-session-ticket-keys.conf
+    cd /usr/local/nginx/conf/session_ticket_keys
+    if [ -f /usr/local/nginx/conf/ssl-session-ticket-keys.conf ]; then
+      /usr/bin/rm -f /usr/local/nginx/conf/ssl-session-ticket-keys.conf
+      /usr/bin/touch /usr/local/nginx/conf/ssl-session-ticket-keys.conf
+    else
+      touch /usr/local/nginx/conf/ssl-session-ticket-keys.conf
+    fi
+  
+    for i in 1 2 3 4 5 6 7 8 9 10 11 12; do
+      /usr/bin/openssl rand -out ${i}.key 80
+      echo "ssl_session_ticket_key /usr/local/nginx/conf/session_ticket_keys/${i}.key;" >> /usr/local/nginx/conf/ssl-session-ticket-keys.conf
+    done
+    echo "nginx session ticket keys created at:"
+    echo "/usr/local/nginx/conf/session_ticket_keys"
+    echo
+    echo "include file at:"
+    echo "/usr/local/nginx/conf/ssl-session-ticket-keys.conf"
   fi
-
-  for i in 1 2 3 4 5 6 7 8 9 10 11 12; do
-    /usr/bin/openssl rand -out ${i}.key 80
-    echo "ssl_session_ticket_key /usr/local/nginx/conf/session_ticket_keys/${i}.key;" >> /usr/local/nginx/conf/ssl-session-ticket-keys.conf
-  done
-  echo "nginx session ticket keys created at:"
-  echo "/usr/local/nginx/conf/session_ticket_keys"
-  echo
-  echo "include file at:"
-  echo "/usr/local/nginx/conf/ssl-session-ticket-keys.conf"
 }
 
 rotate_keys() {
+  per_domain="$1"
   /usr/bin/umask 077
 
-  /usr/bin/cd /usr/local/nginx/conf/session_ticket_keys
+  if [[ "$per_domain" = [yY] ]]; then
+    # get server_names on server
+    domains_list=$(nginx -T 2>&1 | grep "server_name " | sed 's/.*server_name \(.*\);/\1/' | sed 's/ /\n/' | grep -v '\:' | sort | uniq | xargs -n1)
+    # see if the domain has a corresponding ssl config 
+    # directory at /usr/local/nginx/conf/ssl
+    for d in $domains_list; do
+      if [ -d /usr/local/nginx/conf/ssl/$d ]; then
+        /usr/bin/cd /usr/local/nginx/conf/session_ticket_keys/${d}
+      
+        for i in 1 2 3 4 5 6 7 8 9 10 11 12; do
+          /usr/bin/cp -p "/usr/local/nginx/conf/session_ticket_keys/${d}/$((i + 1)).key" /usr/local/nginx/conf/session_ticket_keys/${d}/tmp.key >/dev/null 2>&1
+          /usr/bin/mv -f /usr/local/nginx/conf/session_ticket_keys/${d}/tmp.key "/usr/local/nginx/conf/session_ticket_keys/${d}/$i.key" >/dev/null 2>&1
+        done
+        if [ -f /usr/local/nginx/conf/session_ticket_keys/${d}/13.key ]; then
+          /usr/bin/rm -f /usr/local/nginx/conf/session_ticket_keys/${d}/13.key >/dev/null 2>&1
+        fi
+        /usr/local/sbin/nginx -s reload >/dev/null 2>&1
+      fi
+    done
+  else
+    /usr/bin/cd /usr/local/nginx/conf/session_ticket_keys
 
-  for i in 1 2 3 4 5 6 7 8 9 10 11 12; do
-    /usr/bin/cp -p "/usr/local/nginx/conf/session_ticket_keys/$((i + 1)).key" /usr/local/nginx/conf/session_ticket_keys/tmp.key >/dev/null 2>&1
-    /usr/bin/mv -f /usr/local/nginx/conf/session_ticket_keys/tmp.key "/usr/local/nginx/conf/session_ticket_keys/$i.key" >/dev/null 2>&1
-  done
-  if [ -f /usr/local/nginx/conf/session_ticket_keys/13.key ]; then
-    /usr/bin/rm -f /usr/local/nginx/conf/session_ticket_keys/13.key >/dev/null 2>&1
+    for i in 1 2 3 4 5 6 7 8 9 10 11 12; do
+      /usr/bin/cp -p "/usr/local/nginx/conf/session_ticket_keys/$((i + 1)).key" /usr/local/nginx/conf/session_ticket_keys/tmp.key >/dev/null 2>&1
+      /usr/bin/mv -f /usr/local/nginx/conf/session_ticket_keys/tmp.key "/usr/local/nginx/conf/session_ticket_keys/$i.key" >/dev/null 2>&1
+    done
+    if [ -f /usr/local/nginx/conf/session_ticket_keys/13.key ]; then
+      /usr/bin/rm -f /usr/local/nginx/conf/session_ticket_keys/13.key >/dev/null 2>&1
+    fi
+    /usr/local/sbin/nginx -s reload >/dev/null 2>&1
   fi
-  /usr/local/sbin/nginx -s reload >/dev/null 2>&1
 }
 
 status_keys(){
@@ -171,6 +253,15 @@ case "$1" in
     ;;
   setup )
     setup_keys
+    ;;
+  create-perdomain )
+    create_keys y
+    ;;
+  rotate-perdomain )
+    rotate_keys y
+    ;;
+  setup-perdomain )
+    setup_keys y
     ;;
   uninstall )
     uninstall_keys
